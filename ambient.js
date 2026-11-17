@@ -1,8 +1,16 @@
 (() => {
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const compact = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
   function animateSurface(scene, sourceWidth, regions) {
     const image = scene.querySelector('img');
     const canvas = scene.querySelector('canvas');
+    {
+      const width = canvas.width;
+      const height = canvas.height;
+      canvas.style.aspectRatio = width + ' / ' + height;
+      canvas.width = Math.round(width * (compact ? .55 : .82));
+      canvas.height = Math.round(height * (compact ? .55 : .82));
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const W = canvas.width;
@@ -41,7 +49,7 @@
         const {x,y,w,h,layer,paint,mask,kind} = patch;
         paint.globalCompositeOperation = 'source-over';
         paint.clearRect(0,0,layer.width,layer.height);
-        const rowHeight = 2;
+        const rowHeight = 3;
         for (let row=0;row<layer.height;row+=rowHeight) {
           const depth = row/layer.height;
           const palm = kind !== 'sea';
@@ -70,7 +78,7 @@
     function tick(now) {
       frame = 0;
       if (!visible || motion.matches || document.hidden) return;
-      if (now-last >= 32) {
+      if (now-last >= (compact ? 46 : 32)) {
         seconds += Math.min(now-last,80)/1000;
         last = now;
         draw(seconds);
@@ -112,7 +120,7 @@
     element.style.setProperty('--distance',distance+'px');
   }
   function addBottleEffects(container, x, y, halfWidth, tint, lowerY = y + 555) {
-    for (let i=0;i<9;i++) {
+    for (let i=0;i<(compact ? 4 : 9);i++) {
       const side = i%2 ? 1 : -1;
       const px = x + side * (halfWidth - 8 - i%4*6);
       const py = y + 8 + (i*29)%103;
@@ -125,7 +133,7 @@
       animateParticle(drop,i,3.2+i%4*.72,31+i%4*9);
       container.append(drop);
     }
-    for (let i=0;i<24;i++) {
+    for (let i=0;i<(compact ? 10 : 24);i++) {
       const shoulder = i < 16;
       const px = x + (i*37)%(halfWidth*2-50)-halfWidth+25;
       const py = shoulder ? y + 88 + i%4*8 : lowerY + i%5*9;
@@ -143,7 +151,7 @@
 
 
   function addFizz(container, x, y, width, count, tint, maxRise) {
-    for (let i=0;i<count;i++) {
+    for (let i=0;i<(compact ? Math.ceil(count*.5) : count);i++) {
       const cx=x+(i*37)%width;
       const cy=y+(i*19)%44;
       const bubble=svgElement('circle',{

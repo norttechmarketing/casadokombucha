@@ -2,6 +2,8 @@
   const sections = ['inicio', 'produtos', 'por-que', 'depoimentos', 'sobre', 'contato'];
   const header = document.querySelector('.top');
   const menu = [...header.querySelectorAll('nav a[data-section]')];
+  const fixedHeader = matchMedia('(min-width: 761px)');
+  const headerOffset = () => fixedHeader.matches ? header.getBoundingClientRect().height : 0;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let pending;
   let frame;
@@ -25,7 +27,7 @@
       pending = null;
       target.setAttribute('tabindex', '-1');
       target.focus({preventScroll:true});
-      const offset = header.getBoundingClientRect().height;
+      const offset = headerOffset();
       window.scrollTo({top:window.scrollY + target.getBoundingClientRect().top - offset,behavior:reduced.matches?'instant':'smooth'});
     });
   }
@@ -44,7 +46,7 @@
   let queued = false;
   function updateMenu() {
     queued = false;
-    const edge = header.getBoundingClientRect().height + 26;
+    const edge = headerOffset() + 26;
     let active = sections[0];
     for (const id of sections) {
       if (document.getElementById(id).getBoundingClientRect().top <= edge) active = id;

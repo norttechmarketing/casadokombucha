@@ -435,3 +435,21 @@ footer img {width:95px;height:auto}
 .video-status:not(:empty) {color:var(--green)}
 
 .flavor-copy .flavor-minimum {min-height:0;margin:0 0 16px;font-weight:700}
+
+@media(max-width:760px) {
+  html {scroll-padding-top:0}
+  .top {position:relative;display:flex;justify-content:center;padding:5px 18px}
+  .top nav,.top .nav-cta {display:none}
+  .brand img {width:94px}
+  .hero-scene {container-type:normal;height:auto;aspect-ratio:75/74}
+  .hero-art {top:0;bottom:auto;width:148%;max-width:none;will-change:auto}
+  .hero-scene::after {background:linear-gradient(180deg,#f6ebdb,transparent 6%)}
+  .hero-intro span {box-shadow:none}
+  .is-introducing .hero-intro::before {animation-duration:1.65s}
+  .is-introducing .hero-copy,.is-introducing .hero-index {animation:enter .48s ease-out .82s both}
+}
+@media(max-width:760px) and (prefers-reduced-motion:reduce) {
+  .is-introducing .hero-copy,.is-introducing .hero-index {animation:none}
+}
+.motion .why:not(.in-view) .why-fizz span,.motion .service-strip:not(.in-view) .service-track,
+.motion .contact:not(.in-view) .fizz-letters,.motion .site-footer:not(.in-view) .footer-heart {animation-play-state:paused}
