@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://casa-do-kombucha-artesanal.grandlight5.chatgpt.site/sitemap.xml
