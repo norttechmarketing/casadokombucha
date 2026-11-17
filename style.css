@@ -183,7 +183,7 @@ footer img {width:95px;height:auto}
 }
 @media(max-width:760px) {
   .hero-index {bottom:8px}
-  .products .flavor-grid {grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .products .flavor-grid {grid-template-columns:minmax(0,1fr);gap:32px;max-width:420px;margin-inline:auto}
   .flavor-photo {aspect-ratio:.66}
   .flavor h3 {font-size:clamp(19px,5.1vw,30px)}
   .flavor p {font-size:11px;line-height:1.35}
@@ -388,7 +388,9 @@ footer img {width:95px;height:auto}
 .site-footer.landing-footer a:hover {color:var(--ink)}
 @media(max-width:760px) {
   .top nav {gap:5px;font-size:clamp(8px,2.38vw,12px)}
-  .flavor-cta {min-height:42px;padding-inline:5px;font-size:clamp(8px,2.4vw,12px)}
+  .flavor-copy h3 {font-size:28px}
+  .flavor-copy p {font-size:14px}
+  .flavor-cta {min-height:44px;padding-inline:18px;font-size:13px}
   .flavor-cta[data-whatsapp] {gap:4px}
   .testimonial-grid,.video-break {grid-template-columns:1fr;gap:12px}
 }
