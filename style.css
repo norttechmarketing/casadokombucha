@@ -1,10 +1,16 @@
+@font-face{font-family:"Instrument Serif";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/instrument-serif-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Instrument Serif";font-style:italic;font-weight:400;font-display:swap;src:url("assets/fonts/instrument-serif-latin-400-italic.woff2") format("woff2")}
+@font-face{font-family:"DM Sans";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/dm-sans-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"DM Sans";font-style:normal;font-weight:500;font-display:swap;src:url("assets/fonts/dm-sans-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"DM Sans";font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/dm-sans-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"DM Sans";font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/dm-sans-latin-700-normal.woff2") format("woff2")}
 :root {
   --cream:#f9f6ea; --red:#aa4145; --green:#19492e; --leaf:#00b064;
   --ink:#173d2b; --rule:#19492e28; --sand:#eee4d4; --white:#fffdf4;
   --display:"Instrument Serif", Georgia, serif; --body:"DM Sans", Arial, sans-serif;
 }
 *,*::before,*::after {box-sizing:border-box}
-html {scroll-behavior:smooth;scroll-padding-top:84px;scrollbar-color:var(--green) var(--cream)}
+html {scroll-padding-top:84px;scrollbar-color:var(--green) var(--cream)}
 html::-webkit-scrollbar {width:12px}
 html::-webkit-scrollbar-track {background:var(--cream)}
 html::-webkit-scrollbar-thumb {background:var(--green);border:2px solid var(--cream);border-radius:12px}
@@ -35,7 +41,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible {outline:3px solid va
 .hero {isolation:isolate;position:relative;overflow:hidden;min-height:clamp(560px,calc(100svh - 149px),710px);background:var(--sand);display:grid;align-items:center}
 .hero-scene {position:absolute;inset:0;z-index:-1;overflow:hidden}
 .hero-scene::after {content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f6ebdb 0%,#f6ebdb 22%,#f6ebdbeb 29%,#f6ebdb50 40%,transparent 53%);pointer-events:none}
-.hero-art {position:absolute;right:0;top:50%;width:max(74%,105vh);max-width:1180px;aspect-ratio:3/2;transform:translateY(calc(-50% + var(--shift,0px)));will-change:transform}
+.hero-art {position:absolute;right:0;top:50%;width:max(74%,105vh);max-width:1180px;aspect-ratio:3/2;transform:translateY(calc(-50% + var(--shift,0px)));will-change:auto}
 .hero-art img,.pour {position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .pour {pointer-events:none}
 .hero-inner {padding-block:60px 92px}
@@ -165,8 +171,8 @@ footer img {width:95px;height:auto}
 .flavor h3 {margin:0 0 5px}
 .tea {aspect-ratio:1/.98}
 .tea img {object-position:center 61%}
-.motion .photo-reveal {clip-path:inset(7% 8% 12% 8% round 30%);transition:opacity .8s,transform .9s cubic-bezier(.2,.75,.22,1),clip-path 1.25s cubic-bezier(.2,.75,.22,1)}
-.motion .photo-reveal.is-visible {clip-path:inset(0 round 0)}
+.motion .photo-reveal {transform:translateY(27px) scale(.97);transition:opacity .8s,transform .9s cubic-bezier(.2,.75,.22,1)}
+.motion .photo-reveal.is-visible {transform:none}
 .tea img {transition:transform 1.5s cubic-bezier(.2,.75,.22,1)}
 .motion .tea:not(.is-visible) img {transform:scale(1.17)}
 .faq summary {border-radius:6px;transition:transform .2s,background .2s,box-shadow .2s;padding-inline:8px}
@@ -178,7 +184,7 @@ footer img {width:95px;height:auto}
 }
 @supports (interpolate-size: allow-keywords) and selector(details::details-content) {
   .faq {interpolate-size:allow-keywords}
-  .faq details::details-content {block-size:0;opacity:0;overflow:clip;transition:block-size .32s cubic-bezier(.25,.72,.25,1),opacity .26s ease,content-visibility .32s allow-discrete}
+  .faq details::details-content {block-size:0;opacity:0;overflow:clip;transition:opacity .26s ease}
   .faq details[open]::details-content {block-size:auto;opacity:1}
 }
 @media(max-width:760px) {
@@ -231,9 +237,9 @@ footer img {width:95px;height:auto}
 }
 
 .flavor-photo {position:relative;isolation:isolate;touch-action:pan-y;background:radial-gradient(ellipse at 37% 25%,var(--photo-light),var(--photo-dark) 100%)}
-.flavor-photo[data-flavor="acerola"] {--photo-light:#ffe1c8;--photo-dark:#efb193;--shadow-tint:#893b1d62;--bottle-mask:url("assets/acerola-gelada.webp")}
-.flavor-photo[data-flavor="artesanal"] {--photo-light:#d5ecfd;--photo-dark:#99bbdf;--shadow-tint:#244c7b65;--bottle-mask:url("assets/artesanal-gelada.webp")}
-.flavor-photo[data-flavor="hibisco"] {--photo-light:#f9d8e0;--photo-dark:#d89cab;--shadow-tint:#74374860;--bottle-mask:url("assets/hibisco-gelada.webp")}
+.flavor-photo[data-flavor="acerola"] {--photo-light:#ffe1c8;--photo-dark:#efb193;--shadow-tint:#893b1d62}
+.flavor-photo[data-flavor="artesanal"] {--photo-light:#d5ecfd;--photo-dark:#99bbdf;--shadow-tint:#244c7b65}
+.flavor-photo[data-flavor="hibisco"] {--photo-light:#f9d8e0;--photo-dark:#d89cab;--shadow-tint:#74374860}
 .flavor-bottle {position:absolute;inset:0;transform:translate(var(--bottle-x,0px),var(--bottle-y,0px)) rotate(var(--bottle-turn,0deg));transform-origin:center 87%;transition:transform .32s cubic-bezier(.17,.75,.28,1)}
 .flavor-bottle img,.flavor-effects {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
 .flavor-effects {mask:var(--bottle-mask) center / cover no-repeat}
@@ -324,9 +330,9 @@ footer img {width:95px;height:auto}
   background-position:1px 0,9px 15px,12px 8px,0 0;
   background-clip:text;
   -webkit-text-fill-color:transparent;
-  animation:letter-fizz 4.4s linear infinite;
+  animation:none;
 }
-@keyframes letter-fizz {to {background-position:1px -48px,9px -32px,12px -56px,0 0}}
+
 .floating-whatsapp {
   position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));
   z-index:9;background:#17643c;color:#fff;width:56px;height:56px;min-height:0;padding:0;border-radius:50%;border:1px solid #e9fbe381;
@@ -455,3 +461,62 @@ footer img {width:95px;height:auto}
 }
 .motion .why:not(.in-view) .why-fizz span,.motion .service-strip:not(.in-view) .service-track,
 .motion .contact:not(.in-view) .fizz-letters,.motion .site-footer:not(.in-view) .footer-heart {animation-play-state:paused}
+
+.product-carousel {width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;overflow-anchor:none;touch-action:pan-x pan-y}
+.product-carousel::-webkit-scrollbar {display:none}
+.products .product-carousel .flavor-grid {position:relative;display:flex;grid-template-columns:none;gap:26px;max-width:none;width:max-content;margin:0;padding:12px 0 20px}
+.product-carousel .flavor {width:calc((min(1320px,100vw - 112px) - 52px)/3);flex:none}
+.product-carousel .flavor-photo {aspect-ratio:.69;touch-action:pan-x pan-y}
+.product-carousel .flavor-copy {padding-top:17px;min-height:209px}
+.product-carousel .flavor-copy h3 {min-height:2.1em;display:flex;align-items:center;justify-content:center;font-size:clamp(25px,2.5vw,36px)}
+.product-carousel .flavor-copy >p:not(.flavor-minimum) {min-height:2.8em;font-size:14px}
+.product-carousel .flavor-copy .flavor-minimum {font-size:13px;margin-bottom:15px}
+.product-carousel .flavor-cta {min-height:44px;font-size:13px;padding-inline:18px}
+.carousel-tools {display:flex;justify-content:flex-end;margin-bottom:10px;font-size:12px}
+.carousel-tools button {min-height:36px}
+@media(max-width:1040px) and (min-width:761px) {
+  .product-carousel .flavor {width:calc((100vw - 90px)/2)}
+}
+@media(max-width:760px) {
+  .products .product-carousel .flavor-grid {gap:18px}
+  .product-carousel .flavor {width:min(76vw,350px)}
+  .product-carousel .flavor-copy h3 {font-size:29px}
+  .product-carousel .flavor-copy {min-height:205px}
+}
+
+@media(min-width:761px) and (max-width:1050px) {
+  .top {padding-inline:20px;gap:12px}
+  .top .brand img {width:88px}
+  .top nav {gap:12px;font-size:11px}
+  .top .nav-cta {padding-inline:10px;font-size:11px;gap:6px}
+}
+
+/* Motion performance: local fonts, compositor transforms and native touch. */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:clip}
+body{overflow-x:clip}
+.button,button,summary{touch-action:manipulation}
+.product-carousel{scroll-behavior:auto;contain:layout paint}
+.product-carousel .flavor-grid{will-change:transform}
+.button{transition:transform .25s ease,opacity .25s ease}
+.testimonial-card{transition:transform .25s ease}
+.faq summary{transition:transform .2s ease}
+.motion-paused *, .motion-paused *::before,.motion-paused *::after{animation-play-state:paused!important}
+.why:not(.in-view) .why-fizz span,.contact:not(.in-view) .letter-bubble{animation-play-state:paused}
+.hero-art:not(.in-view) .bottle-fizz,.hero-art:not(.in-view) .condensation,.hero-art:not(.in-view) .cold-mist ellipse{animation-play-state:paused}
+.hero-art{contain:paint}
+
+@media(prefers-reduced-motion:reduce){.product-carousel .flavor-grid{will-change:auto}}
+
+/* Keep the hero image paintable while the opening bubbles play. */
+.hero-intro::before{display:none}
+.is-introducing .hero-copy,.is-introducing .hero-index{animation-delay:.15s}
+
+
+.fizz-letters{display:inline-block;position:relative}
+.letter-fizz-art{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;-webkit-text-fill-color:initial}
+.letter-fizz-art text{font:inherit;letter-spacing:inherit}
+.letter-bubble{animation:letter-rise var(--duration) linear var(--phase) infinite}
+@keyframes letter-rise{from{transform:translateY(0);opacity:0}15%{opacity:.85}to{transform:translateY(var(--rise));opacity:0}}
+

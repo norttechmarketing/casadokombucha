@@ -28,7 +28,8 @@
       target.setAttribute('tabindex', '-1');
       target.focus({preventScroll:true});
       const offset = headerOffset();
-      window.scrollTo({top:window.scrollY + target.getBoundingClientRect().top - offset,behavior:reduced.matches?'instant':'smooth'});
+      if(window.lenis)window.lenis.scrollTo(target,{duration:1.6,offset:-offset});
+      else window.scrollTo({top:window.scrollY + target.getBoundingClientRect().top - offset,behavior:'instant'});
     });
   }
   window.goToSection = goToSection;
@@ -63,6 +64,7 @@
     queued = true;
     requestAnimationFrame(updateMenu);
   },{passive:true});
-  window.addEventListener('resize',updateMenu);
+  let resizeTimer;
+  window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(updateMenu,180)},{passive:true});
   updateMenu();
 })();

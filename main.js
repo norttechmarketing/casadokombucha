@@ -36,9 +36,9 @@ if (!reduced.matches && hero.getBoundingClientRect().bottom > 0) {
 }
 
 for (const photo of products) {
-  let touch = null;
+  let touch = null, pointerFrame=0, pointerEvent;
   function reset() {
-    touch = null;
+    touch = null;cancelAnimationFrame(pointerFrame);pointerFrame=0;
     for (const name of ['--bottle-x','--bottle-y','--bottle-turn']) photo.style.removeProperty(name);
   }
   function follow(event) {
@@ -55,7 +55,7 @@ for (const photo of products) {
     if (event.pointerType !== 'mouse') touch=event.pointerId;
     follow(event);
   },{passive:true});
-  photo.addEventListener('pointermove',follow,{passive:true});
+  photo.addEventListener('pointermove',event=>{pointerEvent=event;if(!pointerFrame)pointerFrame=requestAnimationFrame(()=>{pointerFrame=0;follow(pointerEvent)})},{passive:true});
   for (const event of ['pointerleave','pointerup','pointercancel']) photo.addEventListener(event,reset);
   reduced.addEventListener('change',reset);
 }
@@ -111,8 +111,8 @@ function paintScroll() {
   if (reduced.matches) {
     return;
   }
-  for (const wave of waves) {
-    const {top, height} = wave.getBoundingClientRect();
+  const measured=waves.map(wave=>({wave,rect:wave.getBoundingClientRect()}));
+  for (const {wave,rect:{top,height}} of measured) {
     if (top > innerHeight + 30 || top + height < -30) continue;
     const p = smooth((innerHeight - top) / (innerHeight * .6));
     wave.style.setProperty('--crest', (.26 + p * .74).toFixed(3));
@@ -125,7 +125,8 @@ function queueScroll() {
   requestAnimationFrame(paintScroll);
 }
 window.addEventListener('scroll', queueScroll, {passive:true});
-window.addEventListener('resize', queueScroll);
+let resizeTimer;
+window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(queueScroll,180)},{passive:true});
 reduced.addEventListener('change', queueScroll);
 queueScroll();
 
@@ -141,3 +142,6 @@ document.querySelectorAll('[data-whatsapp]').forEach((link) => {
     });
   });
 });
+
+const pauseHidden=()=>document.documentElement.classList.toggle("motion-paused",document.hidden);
+document.addEventListener("visibilitychange",pauseHidden);pauseHidden();

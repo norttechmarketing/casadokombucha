@@ -49,7 +49,7 @@
         const {x,y,w,h,layer,paint,mask,kind} = patch;
         paint.globalCompositeOperation = 'source-over';
         paint.clearRect(0,0,layer.width,layer.height);
-        const rowHeight = 3;
+        const rowHeight = compact ? 8 : 6;
         for (let row=0;row<layer.height;row+=rowHeight) {
           const depth = row/layer.height;
           const palm = kind !== 'sea';
@@ -63,7 +63,8 @@
           const sourceX = Math.min(sourceWidth-w,Math.max(0,x+dx));
           const sourceY = Math.max(0,y+row/scale+dy);
           const count = Math.min(rowHeight,layer.height-row);
-          paint.drawImage(image,sourceX,sourceY,w,count/scale,0,row,layer.width,count);
+          const ratio=image.naturalWidth/sourceWidth;
+          paint.drawImage(image,sourceX*ratio,sourceY*ratio,w*ratio,count/scale*ratio,0,row,layer.width,count);
         }
         paint.globalCompositeOperation = 'destination-in';
         paint.drawImage(mask,0,0);
@@ -71,14 +72,14 @@
       }
     }
 
-    let visible = true;
+    let visible = false;
     let frame = 0;
     let last = -100;
     let seconds = 0;
     function tick(now) {
       frame = 0;
       if (!visible || motion.matches || document.hidden) return;
-      if (now-last >= (compact ? 46 : 32)) {
+      if (now-last >= (compact ? 32 : 16)) {
         seconds += Math.min(now-last,80)/1000;
         last = now;
         draw(seconds);
@@ -181,12 +182,20 @@
   addFizz(jars,1135,725,160,13,'#ffd48e',91);
 
   const tints = {acerola:'#fff4c6',artesanal:'#d2ebff',hibisco:'#ffe0e7'};
+  const prepareProduct = (photo) => {
+    if (photo.dataset.effectsReady) return;
+    photo.dataset.effectsReady='true';
+    if(photo.dataset.mask)photo.style.setProperty('--bottle-mask',`url('${photo.dataset.mask}')`);
+    addBottleEffects(photo.querySelector('.flavor-effects'),337,181,130,photo.dataset.tint || tints[photo.dataset.flavor] || '#e8f4ff',837);
+  };
   const productObserver = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
-    for (const entry of entries) entry.target.classList.toggle('in-view',entry.isIntersecting);
+    for (const entry of entries) {
+      if (entry.isIntersecting && !motion.matches) prepareProduct(entry.target);
+      entry.target.classList.toggle('in-view',entry.isIntersecting && !document.hidden && !motion.matches);
+    }
   }) : null;
   document.querySelectorAll('.flavor-photo').forEach((photo) => {
-    addBottleEffects(photo.querySelector('.flavor-effects'),337,181,130,tints[photo.dataset.flavor],837);
     if (productObserver) productObserver.observe(photo);
-    else photo.classList.add('in-view');
+    else {prepareProduct(photo);photo.classList.add('in-view');}
   });
 })();

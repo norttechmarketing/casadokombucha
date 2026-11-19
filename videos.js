@@ -28,6 +28,10 @@
     const mute = controls.querySelector('[data-mute]');
     const status = card.querySelector('.video-status');
     let player;
+    const pause=()=>{if(player?.pauseVideo)player.pauseVideo()};
+    const observer=new IntersectionObserver(([entry])=>{if(!entry.isIntersecting)pause()});
+    observer.observe(card);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
     function setButton(button,label,pressed) {
       button.setAttribute('aria-label',label);
       button.title=label;
