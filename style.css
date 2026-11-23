@@ -65,7 +65,7 @@ h1 em,h2 em {font-weight:400;color:#8e3439}
 .flavor {min-width:0}
 .flavor-photo {height:clamp(240px,28vw,420px);overflow:hidden;border-radius:140px 140px 13px 13px;background:#e7dac6}
 .flavor-photo img {width:100%;height:100%;object-fit:cover;object-position:center 45%;transition:transform .7s cubic-bezier(.2,.75,.22,1)}
-.flavor-copy {position:relative;padding:18px 1px 14px;border-bottom:1px solid var(--rule)}
+.flavor-copy {position:relative;padding:18px 1px 14px;border-bottom:0}
 .flavor h3 {font:400 clamp(23px,2.3vw,36px)/1.04 var(--display);margin:3px 0 6px}
 .flavor p {font-size:13px;min-height:23px}
 .order {margin-top:28px;display:flex;justify-content:space-between;align-items:center;gap:20px;border-radius:19px;background:#eae5d4;padding:19px 23px}
@@ -547,3 +547,19 @@ body{overflow-x:clip}
 @media(prefers-reduced-motion:reduce){
  .testimonial-card{animation:none!important;transform:none!important}
 }
+
+/* Fit the full contact headline and leave room for italic descenders. */
+.contact h2{white-space:nowrap;font-size:clamp(28px,5.75vw,90px);line-height:1.12}
+.contact .fizz-letters{background:none;-webkit-text-fill-color:currentColor;color:#c8e1b6;overflow:visible}
+@media(max-width:760px){.contact h2{font-size:clamp(28px,13vw,90px)}}
+/* Keep bottle caps inside the hero at every desktop aspect ratio. */
+@media(min-width:761px){.hero-art{width:150cqh;height:100%;max-width:none;top:0;bottom:auto;right:0;transform:none}}
+
+/* Bottles stay still on hover. Particle masks are rendered once at small resolution. */
+.flavor-bottle,.flavor-shadow{transform:none!important;transition:none!important}
+.product-fizz-canvas{mask:none!important;contain:strict}
+
+.cookie-notice{max-height:calc(100svh - 24px);overflow:auto;overscroll-behavior:contain}
+.video-controls button{min-width:44px;min-height:44px}
+@media(max-width:760px){.site-footer{padding-bottom:calc(84px + env(safe-area-inset-bottom))}}
+

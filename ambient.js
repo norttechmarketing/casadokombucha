@@ -43,19 +43,24 @@
       return {x,y,w,h,kind,layer,paint,mask};
     });
 
-    let captured=false;
-    function capture(){
-      if(!image.naturalWidth)return;
-      const ratio=image.naturalWidth/sourceWidth;
+    let captured=false,capturing=false,captureFailed=false;
+    async function capture(){
+      if(!image.naturalWidth||capturing)return;
+      capturing=true;
+      try {
+      const bitmap=await createImageBitmap(image);
+      const ratio=bitmap.width/sourceWidth;
       for(const patch of patches){
         const source=document.createElement('canvas');
         source.width=patch.layer.width+24;source.height=patch.layer.height+24;
-        source.getContext('2d').drawImage(image,(patch.x-12/scale)*ratio,(patch.y-12/scale)*ratio,(patch.w+24/scale)*ratio,(patch.h+24/scale)*ratio,0,0,source.width,source.height);
+        source.getContext('2d').drawImage(bitmap,(patch.x-12/scale)*ratio,(patch.y-12/scale)*ratio,(patch.w+24/scale)*ratio,(patch.h+24/scale)*ratio,0,0,source.width,source.height);
         patch.source=source;
       }
-      captured=true;
+      bitmap.close();captured=true;capturing=false;sync();
+      } catch {capturing=false;captureFailed=true;sync();}
     }
     function draw(time) {
+      if(!captured)return;
       ctx.clearRect(0,0,W,H);
       const ratio=image.naturalWidth/sourceWidth;
       for (const patch of patches) {
@@ -101,7 +106,7 @@
       unsubscribe?.();unsubscribe=null;
       scene.classList.toggle('in-view',visible && !document.hidden && !motion.matches);
       if (motion.matches) ctx.clearRect(0,0,W,H);
-      if (visible && !motion.matches && !document.hidden && image.naturalWidth) {
+      if (visible && !motion.matches && !document.hidden && image.naturalWidth && !captureFailed) {
         if(!captured)capture();
         last = performance.now()-45;
         unsubscribe=window.SiteClock.subscribe(tick);
@@ -179,7 +184,9 @@
   animateSurface(hero,1536,[
     {x:0,y:360,w:590,h:167,kind:'sea'},
     {x:825,y:368,w:223,h:134,kind:'sea'},
-    {x:745,y:0,w:773,h:174,kind:'palm'}
+    {x:745,y:0,w:773,h:120,kind:'palm'},
+    {x:785,y:120,w:310,h:76,kind:'palm'},
+    {x:1240,y:120,w:278,h:100,kind:'palm'}
   ]);
   addFizz(document.querySelector('#glass-fizz'),1328,606,149,36,'#d1eeff',115);
 
@@ -193,21 +200,4 @@
   addFizz(jars,915,748,165,13,'#ffd48e',105);
   addFizz(jars,1135,725,160,13,'#ffd48e',91);
 
-  const tints = {acerola:'#fff4c6',artesanal:'#d2ebff',hibisco:'#ffe0e7'};
-  const prepareProduct = (photo) => {
-    if (photo.dataset.effectsReady) return;
-    photo.dataset.effectsReady='true';
-    if(photo.dataset.mask)photo.style.setProperty('--bottle-mask',`url('${photo.dataset.mask}')`);
-    addBottleEffects(photo.querySelector('.flavor-effects'),337,181,130,photo.dataset.tint || tints[photo.dataset.flavor] || '#e8f4ff',837);
-  };
-  const productObserver = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting && !motion.matches) prepareProduct(entry.target);
-      entry.target.classList.toggle('in-view',entry.isIntersecting && !document.hidden && !motion.matches);
-    }
-  }) : null;
-  document.querySelectorAll('.flavor-photo').forEach((photo) => {
-    if (productObserver) productObserver.observe(photo);
-    else {prepareProduct(photo);photo.classList.add('in-view');}
-  });
 })();

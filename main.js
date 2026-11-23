@@ -10,7 +10,6 @@ const smooth = (value) => {
 
 const why = document.querySelector('.why');
 const whyFizz = why.querySelector('.why-fizz');
-const products = document.querySelectorAll('.flavor-photo');
 
 const hero = document.querySelector('.hero');
 const heroIntro = hero.querySelector('.hero-intro');
@@ -33,31 +32,6 @@ if (!reduced.matches && hero.getBoundingClientRect().bottom > 0) {
   };
   hero.addEventListener('focusin',finishIntro,{once:true});
   setTimeout(finishIntro,compactMotion.matches ? 1750 : 2850);
-}
-
-for (const photo of products) {
-  let touch = null, pointerFrame=0, pointerEvent;
-  function reset() {
-    touch = null;cancelAnimationFrame(pointerFrame);pointerFrame=0;
-    for (const name of ['--bottle-x','--bottle-y','--bottle-turn']) photo.style.removeProperty(name);
-  }
-  function follow(event) {
-    if (reduced.matches || (event.pointerType !== 'mouse' && touch !== event.pointerId)) return;
-    const bounds = photo.getBoundingClientRect();
-    const x = clamp((event.clientX-bounds.left)/bounds.width*2-1,-1,1);
-    const y = clamp((event.clientY-bounds.top)/bounds.height*2-1,-1,1);
-    const distance = event.pointerType === 'mouse' ? 8 : 5;
-    photo.style.setProperty('--bottle-x', (x*distance).toFixed(2)+'px');
-    photo.style.setProperty('--bottle-y', (y*distance*.65).toFixed(2)+'px');
-    photo.style.setProperty('--bottle-turn', (x*1.15).toFixed(2)+'deg');
-  }
-  photo.addEventListener('pointerdown',(event) => {
-    if (event.pointerType !== 'mouse') touch=event.pointerId;
-    follow(event);
-  },{passive:true});
-  photo.addEventListener('pointermove',event=>{pointerEvent=event;if(!pointerFrame)pointerFrame=requestAnimationFrame(()=>{pointerFrame=0;follow(pointerEvent)})},{passive:true});
-  for (const event of ['pointerleave','pointerup','pointercancel']) photo.addEventListener(event,reset);
-  reduced.addEventListener('change',reset);
 }
 
 let particleIndex=0,whyReady=false,whyBuilding=false,whyRequested=false;

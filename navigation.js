@@ -77,6 +77,11 @@
   window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(measureSections,180)},{passive:true});
   window.addEventListener('load',measureSections,{once:true});
   document.fonts?.ready.then(measureSections);
-  document.addEventListener('toggle',event=>{if(event.target.matches?.('details'))requestAnimationFrame(measureSections)},true);
+  let detailsFrame=0;
+  document.addEventListener('toggle',event=>{
+    if(!event.target.matches?.('details'))return;
+    if(event.target.open)document.querySelectorAll('details[name=perguntas][open]').forEach(item=>{if(item!==event.target)item.open=false});
+    if(!detailsFrame)detailsFrame=requestAnimationFrame(()=>{detailsFrame=0;measureSections()});
+  },true);
   measureSections();
 })();
