@@ -578,3 +578,7 @@ body{overflow-x:clip}
 
 .hero .hero-copy>p.hero-region-price{max-width:400px;font-size:17px;font-weight:600;color:#123a25}
 @media(max-width:760px){.hero .hero-copy>p.hero-region-price{font-size:16px}}
+
+.hero .hero-copy>p.hero-region-price{font-size:18px;font-weight:700;letter-spacing:.025em}
+@media(max-width:760px){.hero .hero-copy>p.hero-region-price{font-size:17px}}
+

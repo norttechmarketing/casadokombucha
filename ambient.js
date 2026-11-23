@@ -188,7 +188,7 @@
     {x:785,y:120,w:310,h:76,kind:'palm'},
     {x:1240,y:120,w:278,h:100,kind:'palm'}
   ]);
-  addFizz(document.querySelector('#glass-fizz'),1328,606,149,36,'#d1eeff',115);
+  addFizz(document.querySelector('#glass-fizz'),1340,580,140,36,'#d1eeff',155);
 
   const about = document.querySelector('.about-scene');
   animateSurface(about,1440,[
