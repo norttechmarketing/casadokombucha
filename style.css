@@ -563,3 +563,15 @@ body{overflow-x:clip}
 .video-controls button{min-width:44px;min-height:44px}
 @media(max-width:760px){.site-footer{padding-bottom:calc(84px + env(safe-area-inset-bottom))}}
 
+
+.hero .hero-copy>p.hero-region-price{max-width:370px;margin-top:16px;font-size:15px;line-height:1.5}
+.hero-region-price+.hero-actions{margin-top:16px}
+@media(max-width:760px){.hero .hero-copy>p.hero-region-price{margin-top:14px;font-size:14px}.hero-region-price+.hero-actions{margin-top:14px}}
+
+
+@media(prefers-reduced-motion:no-preference){
+ .top .nav-cta,.hero-actions>.button{animation:whatsapp-pulse 2.6s ease-in-out infinite;transform-origin:center}
+ .top .nav-cta:is(:hover,:focus-visible),.hero-actions>.button:is(:hover,:focus-visible){animation-play-state:paused}
+ .motion .top:not(.in-view) .nav-cta,.motion .hero:not(.in-view) .hero-actions>.button{animation-play-state:paused}
+}
+

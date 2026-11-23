@@ -97,7 +97,7 @@ if ('IntersectionObserver' in window) {
       }
     }
   });
-  document.querySelectorAll('.why,.service-strip,.contact,.site-footer').forEach(scene => sceneObserver.observe(scene));
+  document.querySelectorAll('.top,.hero,.why,.service-strip,.contact,.site-footer').forEach(scene => sceneObserver.observe(scene));
 }
 
 let queued = false;
