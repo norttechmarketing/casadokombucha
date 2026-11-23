@@ -60,12 +60,18 @@ for (const photo of products) {
   reduced.addEventListener('change',reset);
 }
 
-function fizzWhy() {
-  if (reduced.matches) return;
+let particleIndex=0,whyReady=false,whyBuilding=false,whyRequested=false;
+const idleTask=callback=>window.requestIdleCallback?requestIdleCallback(callback,{timeout:120}):setTimeout(callback,16);
+function prepareWhy(){
+  if(whyReady||whyBuilding||reduced.matches)return;
+  whyBuilding=true;
+  function chunk(){
+    const limit=particleIndex+8;
   const burstCount = compactMotion.matches ? 32 : 64;
   const steadyCount = compactMotion.matches ? 24 : 36;
   const bubbles = document.createDocumentFragment();
-  for (let i=0;i<burstCount+steadyCount;i++) {
+  for (;particleIndex<Math.min(limit,burstCount+steadyCount);particleIndex++) {
+    const i=particleIndex;
     const bubble = document.createElement('span');
     const steady = i >= burstCount;
     bubble.className = steady ? 'why-steady' : 'why-burst';
@@ -78,12 +84,27 @@ function fizzWhy() {
     bubbles.append(bubble);
   }
   whyFizz.append(bubbles);
+
+    if(particleIndex<burstCount+steadyCount){idleTask(chunk);return;}
+    whyReady=true;whyBuilding=false;
+    if(whyRequested)startWhy();
+  }
+  idleTask(chunk);
+}
+function startWhy(){
   whyFizz.classList.add('is-fizzing');
-  setTimeout(() => whyFizz.querySelectorAll('.why-burst').forEach(bubble=>bubble.remove()),2900);
+  setTimeout(()=>whyFizz.querySelectorAll('.why-burst').forEach(b=>b.remove()),2900);
+}
+function fizzWhy(){
+  if(reduced.matches)return;
+  whyRequested=true;
+  if(whyReady)startWhy();else prepareWhy();
 }
 
 if ('IntersectionObserver' in window) {
   document.documentElement.classList.add('motion');
+  const warmWhy=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){prepareWhy();warmWhy.disconnect()}},{rootMargin:'700px'});
+  warmWhy.observe(why);
   const reveal = new IntersectionObserver((entries) => {
     for (const {isIntersecting, target} of entries) {
       if (!isIntersecting) continue;

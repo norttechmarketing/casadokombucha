@@ -1,95 +1,50 @@
 (() => {
   const viewport=document.querySelector('.product-carousel');
-  if (!viewport) return;
-  const track=viewport.querySelector('.flavor-grid');
-  const originals=[...track.children];
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let visible=false, dragging=false;
-  let wakeAt=0, frame=0, last=0, cycle=0, position=0;
-  for (const side of ['before','after']) {
-    const group=document.createDocumentFragment();
-    for (const source of originals) {
-      const clone=source.cloneNode(true);
-      clone.dataset.copy=side;
-      clone.setAttribute('aria-hidden','true');
-      clone.querySelectorAll('a,button').forEach(link=>link.tabIndex=-1);
-      group.append(clone);
-    }
-    if(side==='before')track.prepend(group);
-    else track.append(group);
+  if(!viewport)return;
+  const track=viewport.querySelector('.flavor-grid'),originals=[...track.children];
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),speed=.065;
+  let animation,cycle=0,visible=false,pointer=null,dragging=false,startX=0,startPhase=0,suppressClick=false,resizeTimer;
+  const mod=(n,size)=>size?((n%size)+size)%size:0;
+  const phase=()=>mod((animation?.currentTime||0)*speed,cycle);
+  function sync(){if(animation)(visible&&!document.hidden&&!reduced.matches&&!dragging)?animation.play():animation.pause()}
+  for(const side of ['before','after']){
+    const fragment=document.createDocumentFragment();
+    for(const card of originals){const clone=card.cloneNode(true);clone.dataset.copy=side;clone.setAttribute('aria-hidden','true');clone.querySelectorAll('a,button').forEach(a=>a.tabIndex=-1);fragment.append(clone)}
+    side==='before'?track.prepend(fragment):track.append(fragment);
   }
-  const first=track.children[originals.length];
-  const imageObserver=new IntersectionObserver(entries=>{
-    for(const entry of entries){
-      if(!entry.isIntersecting)continue;
-      const image=entry.target;
-      if(image.dataset.src)image.src=image.dataset.src;
-      imageObserver.unobserve(image);
-    }
-  },{rootMargin:'600px'});
-  track.querySelectorAll('img[data-src]').forEach(image=>imageObserver.observe(image));
-  function measure() {
-    const fraction=cycle ? position/cycle : 0;
-    cycle=first.offsetLeft-track.firstElementChild.offsetLeft;
-    position=fraction*cycle;
-    viewport.scrollLeft=cycle;
-    track.style.transform=`translate3d(${-position}px,0,0)`;
+  function measure(){
+    const fraction=cycle?phase()/cycle:0;
+    const next=track.children[originals.length].offsetLeft-track.firstElementChild.offsetLeft;
+    if(!next||Math.abs(next-cycle)<.1)return;
+    cycle=next;
+    animation?.cancel();
+    animation=track.animate([{transform:`translate3d(${-cycle}px,0,0)`},{transform:`translate3d(${-cycle*2}px,0,0)`}],{duration:cycle/speed,iterations:Infinity,easing:'linear'});
+    animation.currentTime=fraction*cycle/speed;sync();
   }
-  function normalize() {
-    if(!cycle) return;
-    const x=viewport.scrollLeft;
-    if(x<cycle*.5) viewport.scrollLeft=x+cycle;
-    else if(x>=cycle*2.5) viewport.scrollLeft=x-cycle;
-  }
-  function stop() {cancelAnimationFrame(frame);frame=0;last=0;}
-  function tick(now) {
-    frame=0;
-    if(!visible || document.hidden || reduced.matches || dragging) return;
-    const dt=last ? Math.min(now-last,50) : 0;
-    last=now;
-    if(now>=wakeAt) {
-      position+=dt*.065;
-      if(cycle)position%=cycle;
-      track.style.transform=`translate3d(${-position}px,0,0)`;
-    }
-    frame=requestAnimationFrame(tick);
-  }
-  function sync() {
-    stop();
-    if(visible&&!document.hidden&&!reduced.matches&&!dragging)frame=requestAnimationFrame(tick);
-  }
-  viewport.addEventListener('pointerdown',event=>{
-    if(event.pointerType==='mouse') return;
-    dragging=true;sync();
+  viewport.addEventListener('pointerdown',event=>{if(event.button)return;pointer=event.pointerId;startX=event.clientX;startPhase=phase();dragging=false},{passive:true});
+  viewport.addEventListener('pointermove',event=>{
+    if(pointer!==event.pointerId)return;
+    const dx=event.clientX-startX;
+    if(!dragging&&Math.abs(dx)<6)return;
+    if(!dragging){startPhase=phase();startX=event.clientX;dragging=true;viewport.setPointerCapture(pointer);sync();}
+    animation.currentTime=mod(startPhase-(event.clientX-startX),cycle)/speed;
+    suppressClick=true;
   },{passive:true});
-  const release=()=>{
-    if(!dragging)return;
-    dragging=false;wakeAt=performance.now()+150;sync();
-  };
-  window.addEventListener('pointerup',release,{passive:true});
-  window.addEventListener('pointercancel',release,{passive:true});
-  window.addEventListener('blur',release);
-  viewport.addEventListener('wheel',event=>{
-    if(Math.abs(event.deltaX)<=Math.abs(event.deltaY)&&!event.shiftKey)return;
-    wakeAt=performance.now()+150;
-  },{passive:true});
-  viewport.addEventListener('keydown',event=>{
-    if(['ArrowLeft','ArrowRight','Home','End','PageUp','PageDown'].includes(event.key))wakeAt=performance.now()+150;
+  const release=event=>{if(pointer===null||(event.pointerId!==undefined&&pointer!==event.pointerId))return;pointer=null;dragging=false;sync();setTimeout(()=>suppressClick=false,0)};
+  window.addEventListener('pointerup',release,{passive:true});window.addEventListener('pointercancel',release,{passive:true});window.addEventListener('blur',release);
+  viewport.addEventListener('click',event=>{if(suppressClick){event.preventDefault();event.stopPropagation()}},true);
+  viewport.addEventListener('wheel',event=>{if(!animation||(!event.shiftKey&&Math.abs(event.deltaX)<=Math.abs(event.deltaY)))return;event.preventDefault();animation.currentTime=mod(phase()+(event.deltaX||event.deltaY),cycle)/speed},{passive:false});
+  viewport.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key)||!animation)return;event.preventDefault();const step=originals[0].offsetWidth+parseFloat(getComputedStyle(track).gap);animation.currentTime=mod(phase()+(event.key==='ArrowRight'?step:-step),cycle)/speed});
+  viewport.addEventListener('focusin',event=>{
+    if(!animation||!event.target.matches(':focus-visible'))return;
+    const card=event.target.closest('.flavor');if(!card)return;
+    animation.currentTime=mod(card.offsetLeft-cycle-(viewport.clientWidth-card.offsetWidth)/2,cycle)/speed;
   });
-  let scrollFrame=0;
-  viewport.addEventListener('scroll',()=>{
-    if(scrollFrame||(!dragging&&performance.now()>=wakeAt))return;
-    scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;normalize()});
-  },{passive:true});
-  document.addEventListener('visibilitychange',sync);
-  reduced.addEventListener('change',sync);
-  let measuredWidth=0,resizeTimer;
-  new ResizeObserver(([entry])=>{
-    const width=entry.contentRect.width;
-    if(Math.abs(width-measuredWidth)<.5)return;
-    measuredWidth=width;clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(()=>{measure();sync()},180);
-  }).observe(viewport);
-  new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();}).observe(viewport);
+  const images=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){const img=entry.target;if(img.dataset.src)img.src=img.dataset.src;images.unobserve(img)}},{rootMargin:'600px'});
+  track.querySelectorAll('img[data-src]').forEach(img=>images.observe(img));
+  let width=viewport.clientWidth;
+  new ResizeObserver(([entry])=>{if(Math.abs(width-entry.contentRect.width)<.5)return;width=entry.contentRect.width;clearTimeout(resizeTimer);resizeTimer=setTimeout(measure,180)}).observe(viewport);
+  new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync()}).observe(viewport);
+  document.addEventListener('visibilitychange',sync);reduced.addEventListener('change',sync);
   measure();
 })();

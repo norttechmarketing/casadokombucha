@@ -404,9 +404,7 @@ footer img {width:95px;height:auto}
 .testimonial-card {height:100%;padding:clamp(16px,3vw,34px);border:1px solid var(--rule);border-radius:14px;transition:box-shadow .25s,transform .25s}
 .testimonial-grid .testimonial-card blockquote {padding:0;border:0}
 .testimonial-card figcaption {margin-top:14px;color:var(--green);font-size:14px;font-weight:700}
-@media (hover:hover) and (prefers-reduced-motion:no-preference) {
-  .testimonial-card:hover {box-shadow:0 12px 25px #10261c26;animation:testimonial-float 2.6s ease-in-out infinite}
-}
+
 @keyframes testimonial-float {0%,100% {transform:translateY(-3px) scale(1.01)} 50% {transform:translateY(-8px) scale(1.025)}}
 .video-slot {width:100%;min-width:0;display:flex;flex-direction:column;align-items:stretch;justify-content:center;overflow:hidden;min-height:200px}
 .video-slot iframe {display:block;width:100%;min-width:200px;min-height:200px;aspect-ratio:16/9;border:0}
@@ -520,3 +518,32 @@ body{overflow-x:clip}
 .letter-bubble{animation:letter-rise var(--duration) linear var(--phase) infinite}
 @keyframes letter-rise{from{transform:translateY(0);opacity:0}15%{opacity:.85}to{transform:translateY(var(--rise));opacity:0}}
 
+
+/* Full-bleed products: clipping occurs only at the viewport edges. */
+.product-carousel{width:100vw;margin-left:calc((100% - 100vw)/2)}
+.flavor-photo{contain:layout paint}
+.flavor-ingredients{position:absolute;z-index:2;left:8%;bottom:1.2%;width:84%;height:18%;object-fit:contain!important;object-position:center bottom!important;pointer-events:none}
+
+.flavor-bottle .flavor-ingredients{top:auto;right:auto;bottom:2.2%;left:8%;width:84%;height:18%;object-fit:contain;object-position:center bottom}
+
+
+/* Keep the final phrase intact, including the italic overhang. */
+.contact h2 em{display:inline-block;white-space:nowrap}
+.contact .fizz-letters{white-space:nowrap;padding-right:.08em;margin-right:-.08em}
+
+/* One compositor animation; no competing native horizontal scroll. */
+.product-carousel{overflow:clip;touch-action:pan-y}
+.product-carousel .flavor-photo{touch-action:pan-y}
+.product-carousel img{-webkit-user-drag:none;user-select:none}
+
+
+/* Highlight is opacity-only; the floating motion only runs on interaction. */
+.testimonial-card{position:relative;isolation:isolate}
+.testimonial-card::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;background:linear-gradient(140deg,#ffffff8c,#b5d6a424);box-shadow:0 12px 30px #19492e30,0 0 18px #b5d6a430;opacity:0;transition:opacity .25s ease}
+.testimonial:is(:hover,:focus-within) .testimonial-card::before{opacity:1}
+@media(prefers-reduced-motion:no-preference){
+ .testimonial:is(:hover,:focus-within) .testimonial-card{will-change:transform;animation:testimonial-float 2.6s ease-in-out infinite}
+}
+@media(prefers-reduced-motion:reduce){
+ .testimonial-card{animation:none!important;transform:none!important}
+}

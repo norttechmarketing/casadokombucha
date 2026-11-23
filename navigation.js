@@ -28,7 +28,7 @@
       target.setAttribute('tabindex', '-1');
       target.focus({preventScroll:true});
       const offset = headerOffset();
-      if(window.lenis)window.lenis.scrollTo(target,{duration:1.6,offset:-offset});
+      if(window.lenis)window.lenis.scrollTo(target,{duration:1.2,offset:-offset});
       else window.scrollTo({top:window.scrollY + target.getBoundingClientRect().top - offset,behavior:'instant'});
     });
   }
@@ -44,16 +44,25 @@
   const initial = readSection();
   if (sections.includes(initial)) goToSection(initial,{history:false});
   window.addEventListener('popstate', () => goToSection(readSection() || 'inicio',{history:false}));
-  let queued = false;
+  let queued = false, positions=[],offset=0,lastActive;
+  function measureSections(){
+    const y=scrollY;
+    offset=headerOffset();
+    positions=sections.map(id=>({id,top:document.getElementById(id).getBoundingClientRect().top+y}));
+    window.lenis?.resize();
+    updateMenu();
+  }
   function updateMenu() {
     queued = false;
-    const edge = headerOffset() + 26;
+    const edge = scrollY + offset + 26;
     let active = sections[0];
-    for (const id of sections) {
-      if (document.getElementById(id).getBoundingClientRect().top <= edge) active = id;
+    for (const section of positions) {
+      if (section.top <= edge) active = section.id;
     }
     const atEnd = window.scrollY + innerHeight >= document.documentElement.scrollHeight - 2;
     if (atEnd && active === 'sobre') active = 'contato';
+    if(active===lastActive)return;
+    lastActive=active;
     for (const link of menu) {
       if (link.dataset.section === active) link.setAttribute('aria-current','location');
       else link.removeAttribute('aria-current');
@@ -65,6 +74,9 @@
     requestAnimationFrame(updateMenu);
   },{passive:true});
   let resizeTimer;
-  window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(updateMenu,180)},{passive:true});
-  updateMenu();
+  window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(measureSections,180)},{passive:true});
+  window.addEventListener('load',measureSections,{once:true});
+  document.fonts?.ready.then(measureSections);
+  document.addEventListener('toggle',event=>{if(event.target.matches?.('details'))requestAnimationFrame(measureSections)},true);
+  measureSections();
 })();

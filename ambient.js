@@ -43,8 +43,21 @@
       return {x,y,w,h,kind,layer,paint,mask};
     });
 
+    let captured=false;
+    function capture(){
+      if(!image.naturalWidth)return;
+      const ratio=image.naturalWidth/sourceWidth;
+      for(const patch of patches){
+        const source=document.createElement('canvas');
+        source.width=patch.layer.width+24;source.height=patch.layer.height+24;
+        source.getContext('2d').drawImage(image,(patch.x-12/scale)*ratio,(patch.y-12/scale)*ratio,(patch.w+24/scale)*ratio,(patch.h+24/scale)*ratio,0,0,source.width,source.height);
+        patch.source=source;
+      }
+      captured=true;
+    }
     function draw(time) {
       ctx.clearRect(0,0,W,H);
+      const ratio=image.naturalWidth/sourceWidth;
       for (const patch of patches) {
         const {x,y,w,h,layer,paint,mask,kind} = patch;
         paint.globalCompositeOperation = 'source-over';
@@ -63,8 +76,7 @@
           const sourceX = Math.min(sourceWidth-w,Math.max(0,x+dx));
           const sourceY = Math.max(0,y+row/scale+dy);
           const count = Math.min(rowHeight,layer.height-row);
-          const ratio=image.naturalWidth/sourceWidth;
-          paint.drawImage(image,sourceX*ratio,sourceY*ratio,w*ratio,count/scale*ratio,0,row,layer.width,count);
+          paint.drawImage(patch.source,12+(sourceX-x)*scale,12+row+dy*scale,layer.width,count,0,row,layer.width,count);
         }
         paint.globalCompositeOperation = 'destination-in';
         paint.drawImage(mask,0,0);
@@ -73,27 +85,26 @@
     }
 
     let visible = false;
-    let frame = 0;
+    let unsubscribe;
     let last = -100;
     let seconds = 0;
     function tick(now) {
-      frame = 0;
       if (!visible || motion.matches || document.hidden) return;
       if (now-last >= (compact ? 32 : 16)) {
         seconds += Math.min(now-last,80)/1000;
         last = now;
         draw(seconds);
       }
-      frame = requestAnimationFrame(tick);
+
     }
     function sync() {
-      if (frame) cancelAnimationFrame(frame);
-      frame = 0;
+      unsubscribe?.();unsubscribe=null;
       scene.classList.toggle('in-view',visible && !document.hidden && !motion.matches);
       if (motion.matches) ctx.clearRect(0,0,W,H);
       if (visible && !motion.matches && !document.hidden && image.naturalWidth) {
+        if(!captured)capture();
         last = performance.now()-45;
-        frame = requestAnimationFrame(tick);
+        unsubscribe=window.SiteClock.subscribe(tick);
       }
     }
     if ('IntersectionObserver' in window) {
@@ -103,7 +114,7 @@
       });
       observer.observe(scene);
     }
-    image.addEventListener('load',sync);
+    image.addEventListener('load',()=>{capture();sync()});
     motion.addEventListener('change',sync);
     document.addEventListener('visibilitychange',sync);
     sync();
@@ -121,7 +132,8 @@
     element.style.setProperty('--distance',distance+'px');
   }
   function addBottleEffects(container, x, y, halfWidth, tint, lowerY = y + 555) {
-    for (let i=0;i<(compact ? 4 : 9);i++) {
+    const product=container.classList.contains('flavor-effects');
+    for (let i=0;i<(compact ? 4 : product ? 5 : 9);i++) {
       const side = i%2 ? 1 : -1;
       const px = x + side * (halfWidth - 8 - i%4*6);
       const py = y + 8 + (i*29)%103;
@@ -134,8 +146,8 @@
       animateParticle(drop,i,3.2+i%4*.72,31+i%4*9);
       container.append(drop);
     }
-    for (let i=0;i<(compact ? 10 : 24);i++) {
-      const shoulder = i < 16;
+    for (let i=0;i<(compact ? 10 : product ? 14 : 24);i++) {
+      const shoulder = i < (product ? 9 : 16);
       const px = x + (i*37)%(halfWidth*2-50)-halfWidth+25;
       const py = shoulder ? y + 88 + i%4*8 : lowerY + i%5*9;
       const bubble = svgElement('circle',{
